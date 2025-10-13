@@ -1,0 +1,3 @@
+target: Renewable Energy Share (%)
+test_data: data/processed/test.csv
+train_data: data/processed/train.csv
