@@ -1,0 +1,19 @@
+stages:
+  preprocess:
+    cmd: python src/preprocess.py
+    deps:
+      - src/preprocess.py
+      - data/raw/global_energy_consumption.csv
+    outs:
+      - data/processed/train.csv
+      - data/processed/test.csv
+
+  train_models:
+    cmd: python src/model_train.py
+    deps:
+      - src/model_train.py
+      - data/processed/train.csv
+      - data/processed/test.csv
+      - config/config.yaml
+    outs:
+      - models/
