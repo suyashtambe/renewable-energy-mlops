@@ -1,0 +1,14 @@
+artifact_uri: file:///C:/Users/Suyash%20Tambe/Desktop/renewable-energy-mlops/mlruns/829949249416701390/a11b5167cf9341d992ba57da7a273dc1/artifacts
+end_time: 1760808967104
+entry_point_name: ''
+experiment_id: '829949249416701390'
+lifecycle_stage: active
+run_id: a11b5167cf9341d992ba57da7a273dc1
+run_name: Canada_Prophet
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1760808966661
+status: 3
+tags: []
+user_id: Suyash Tambe

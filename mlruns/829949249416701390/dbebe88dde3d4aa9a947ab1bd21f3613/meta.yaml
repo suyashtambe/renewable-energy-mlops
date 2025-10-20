@@ -1,0 +1,14 @@
+artifact_uri: file:///C:/Users/Suyash%20Tambe/Desktop/renewable-energy-mlops/mlruns/829949249416701390/dbebe88dde3d4aa9a947ab1bd21f3613/artifacts
+end_time: 1760808786398
+entry_point_name: ''
+experiment_id: '829949249416701390'
+lifecycle_stage: active
+run_id: dbebe88dde3d4aa9a947ab1bd21f3613
+run_name: China_Prophet
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1760808786048
+status: 3
+tags: []
+user_id: Suyash Tambe

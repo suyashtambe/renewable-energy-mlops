@@ -1,0 +1,14 @@
+artifact_uri: file:///C:/Users/Suyash%20Tambe/Desktop/renewable-energy-mlops/mlruns/927420911713058645/8a195ecb7bb543ac8526c71ca73e6bed/artifacts
+end_time: 1760808975553
+entry_point_name: ''
+experiment_id: '927420911713058645'
+lifecycle_stage: active
+run_id: 8a195ecb7bb543ac8526c71ca73e6bed
+run_name: USA_Evaluation
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1760808975484
+status: 3
+tags: []
+user_id: Suyash Tambe

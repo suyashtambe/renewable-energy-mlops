@@ -1,0 +1,14 @@
+artifact_uri: file:///C:/Users/Suyash%20Tambe/Desktop/renewable-energy-mlops/mlruns/829949249416701390/e79a15c734ea477dbc0a15ab673e4f82/artifacts
+end_time: 1760808785275
+entry_point_name: ''
+experiment_id: '829949249416701390'
+lifecycle_stage: active
+run_id: e79a15c734ea477dbc0a15ab673e4f82
+run_name: Germany_Prophet
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1760808784899
+status: 3
+tags: []
+user_id: Suyash Tambe

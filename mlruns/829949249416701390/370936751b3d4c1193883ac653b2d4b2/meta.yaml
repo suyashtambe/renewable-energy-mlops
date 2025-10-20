@@ -1,0 +1,14 @@
+artifact_uri: file:///C:/Users/Suyash%20Tambe/Desktop/renewable-energy-mlops/mlruns/829949249416701390/370936751b3d4c1193883ac653b2d4b2/artifacts
+end_time: 1760808965146
+entry_point_name: ''
+experiment_id: '829949249416701390'
+lifecycle_stage: active
+run_id: 370936751b3d4c1193883ac653b2d4b2
+run_name: UK_Prophet
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1760808964638
+status: 3
+tags: []
+user_id: Suyash Tambe

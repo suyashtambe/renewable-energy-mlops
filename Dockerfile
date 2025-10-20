@@ -1,14 +1,27 @@
-FROM python:3.12-slim
+# ====== Base Image ======
+FROM python:3.10-slim
 
+# ====== Working Directory ======
 WORKDIR /app
 
-COPY requirements.txt .
+# ====== Copy Everything ======
+COPY . /app
+
+# ====== Install System Dependencies ======
+RUN apt-get update && apt-get install -y \
+    gcc \
+    build-essential \
+    && rm -rf /var/lib/apt/lists/*
+
+# ====== Install Python Requirements ======
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY src/ ./src/
-COPY models/ ./models/
-COPY config/ ./config/
+# ====== Ensure Models Exist ======
+# If models are not built into the image, create an empty directory
+RUN mkdir -p models
 
-EXPOSE 5000
+# ====== Set Environment Variables ======
+ENV PYTHONUNBUFFERED=1
 
+# ====== Run API ======
 CMD ["python", "src/api.py"]

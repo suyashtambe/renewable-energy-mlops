@@ -17,3 +17,12 @@ stages:
       - config/config.yaml
     outs:
       - models/
+
+  evaluate:
+    cmd: python src/model_eval.py
+    deps:
+      - src/model_eval.py
+      - models/
+      - data/processed/test.csv
+    outs:
+      - metrics/eval_metrics.json
