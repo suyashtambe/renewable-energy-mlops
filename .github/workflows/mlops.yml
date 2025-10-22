@@ -1,0 +1,34 @@
+name: CI/CD Pipeline for Renewable Energy MLOps
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/gh_actions_key
+          chmod 600 ~/.ssh/gh_actions_key
+          echo "Host ec2\n\tHostName ${{ secrets.EC2_HOST }}\n\tUser ubuntu\n\tIdentityFile ~/.ssh/gh_actions_key\n\tStrictHostKeyChecking no" > ~/.ssh/config
+
+      - name: Deploy Docker container on EC2
+        run: |
+          ssh ec2 << 'EOF'
+            cd ~/renewable-energy-mlops || git clone https://github.com/suyashtambe/renewable-energy-mlops.git
+            cd renewable-energy-mlops
+            git pull origin main
+            docker stop energy_app || true
+            docker rm energy_app || true
+            docker rmi energy-mlops:latest || true
+            docker build -t energy-mlops:latest .
+            docker run -d -p 8000:8000 --name energy_app energy-mlops:latest
+          EOF
