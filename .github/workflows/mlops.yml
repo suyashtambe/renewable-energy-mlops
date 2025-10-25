@@ -30,12 +30,10 @@ jobs:
           pip install -r requirements.txt
           pip install dvc[all] mlflow
 
-      # Step 4: Pull DVC data (optional)
-      - name: Pull DVC data
+      # Step 4: Run preprocessing 
+      - name: Run preprocessing
         run: |
-          if [ -f ".dvc/config" ]; then
-            dvc pull || echo "No DVC data found."
-          fi
+          python src/preprocess.py
 
       # Step 5: Run model training
       - name: Run model training
