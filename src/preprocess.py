@@ -5,7 +5,7 @@ import os
 
 def preprocess_data():
     # Load raw dataset
-    df = pd.read_csv("data/raw/global_energy_consumption.csv")
+    df = pd.read_csv(r"C:\Users\Suyash Tambe\Desktop\renewable-energy-mlops\data\raw\global_energy_consumption.csv")
 
     # Check for missing values
     if df.isnull().sum().sum() > 0:
@@ -38,7 +38,7 @@ def preprocess_data():
     train_df.to_csv("data/processed/train.csv", index=False)
     test_df.to_csv("data/processed/test.csv", index=False)
 
-    print("✅ Preprocessing complete!")
+    print(" Preprocessing complete!")
     print(f"Train shape: {train_df.shape}, Test shape: {test_df.shape}")
 
 if __name__ == "__main__":

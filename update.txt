@@ -15,3 +15,6 @@ Invoke-RestMethod -Uri "http://localhost:8000/predict" `
 How to get inside EC2 
  ssh -i "C:\Users\Suyash Tambe\Downloads\energy_mlops.pem" ubuntu@18.212.208.5
  
+
+
+ give me a full cicd pipeline file consisting everything in it docker , dvc upload deploy and all neccesary for the project to work . and i dont know anything  abt this im beginner
