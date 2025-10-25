@@ -11,8 +11,8 @@ stages:
   train:
     cmd: python src/model_train.py
     deps:
-      - src/train_model.py
+      - src/model_train.py
       - data/processed/train.csv
       - data/processed/test.csv
     outs:
-      - models/model.pkl
+      - models/
