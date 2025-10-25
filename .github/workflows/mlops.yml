@@ -30,7 +30,7 @@ jobs:
           pip install -r requirements.txt
           pip install dvc[all] mlflow
 
-      # Step 4: (Optional) Pull DVC data if tracked
+      # Step 4: Pull DVC data (optional)
       - name: Pull DVC data
         run: |
           if [ -f ".dvc/config" ]; then
@@ -42,12 +42,7 @@ jobs:
         run: |
           python src/train_model.py
 
-      # Step 6: Track MLflow runs
-      - name: Log MLflow metrics
-        run: |
-          echo "Training complete. MLflow tracking handled locally or via EC2."
-
-      # Step 7: Commit & push updated artifacts
+      # Step 6: Commit & push updated model artifacts
       - name: Commit trained model & metrics
         run: |
           git config --global user.name "github-actions"
@@ -55,3 +50,40 @@ jobs:
           git add -A
           git commit -m "Auto-update model and metrics [skip ci]" || echo "No changes to commit"
           git push origin main || echo "No push needed"
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: mlops-pipeline
+
+    steps:
+      # Step 1: Checkout repo
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Step 2: Set up SSH key for EC2 access
+      - name: Setup SSH Key
+        run: |
+          echo "${{ secrets.PRIVATE_KEY }}" > private_key.pem
+          chmod 600 private_key.pem
+
+      # Step 3: Deploy Docker container on EC2
+      - name: Deploy Docker container on EC2
+        run: |
+          ssh -o StrictHostKeyChecking=no -i private_key.pem ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
+            echo " Connected to EC2 instance"
+
+            cd ${{ secrets.PROJECT_PATH }}
+
+            echo "Pulling latest changes..."
+            git pull origin main
+
+            echo "Stopping old container..."
+            docker stop renewable-energy-mlops || true
+            docker rm renewable-energy-mlops || true
+
+            echo "Building and running new container..."
+            docker build -t renewable-energy-mlops .
+            docker run -d -p 8000:8000 renewable-energy-mlops
+
+            echo " Deployment successful!"
+          EOF
