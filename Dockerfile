@@ -44,4 +44,4 @@ COPY . .
 RUN dvc pull -v || true
 
 # Default command to train model
-CMD ["python", "src/train_model.py"]
+CMD ["python", "src/model_train.py"]
