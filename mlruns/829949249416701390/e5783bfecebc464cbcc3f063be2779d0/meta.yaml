@@ -1,0 +1,14 @@
+artifact_uri: file:///C:/Users/Suyash%20Tambe/Desktop/renewable-energy-mlops/mlruns/829949249416701390/e5783bfecebc464cbcc3f063be2779d0/artifacts
+end_time: 1761375642456
+entry_point_name: ''
+experiment_id: '829949249416701390'
+lifecycle_stage: active
+run_id: e5783bfecebc464cbcc3f063be2779d0
+run_name: Japan_Prophet
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1761375642191
+status: 3
+tags: []
+user_id: Suyash Tambe

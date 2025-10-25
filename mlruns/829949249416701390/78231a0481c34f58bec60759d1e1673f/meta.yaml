@@ -1,0 +1,14 @@
+artifact_uri: file:///C:/Users/Suyash%20Tambe/Desktop/renewable-energy-mlops/mlruns/829949249416701390/78231a0481c34f58bec60759d1e1673f/artifacts
+end_time: 1761375643798
+entry_point_name: ''
+experiment_id: '829949249416701390'
+lifecycle_stage: active
+run_id: 78231a0481c34f58bec60759d1e1673f
+run_name: Russia_Prophet
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1761375643532
+status: 3
+tags: []
+user_id: Suyash Tambe

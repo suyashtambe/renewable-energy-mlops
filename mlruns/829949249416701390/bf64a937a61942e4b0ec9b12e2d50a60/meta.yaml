@@ -1,0 +1,14 @@
+artifact_uri: file:///C:/Users/Suyash%20Tambe/Desktop/renewable-energy-mlops/mlruns/829949249416701390/bf64a937a61942e4b0ec9b12e2d50a60/artifacts
+end_time: 1761375641374
+entry_point_name: ''
+experiment_id: '829949249416701390'
+lifecycle_stage: active
+run_id: bf64a937a61942e4b0ec9b12e2d50a60
+run_name: India_Prophet
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1761375636642
+status: 3
+tags: []
+user_id: Suyash Tambe

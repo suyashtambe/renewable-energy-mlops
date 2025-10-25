@@ -1,87 +1,112 @@
-name: Renewable Energy MLOps CI/CD
+# name: Renewable Energy MLOps CI/CD
+
+# on:
+#   push:
+#     branches:
+#       - main
+#   pull_request:
+#     branches:
+#       - main
+
+# jobs:
+#   mlops-pipeline:
+#     runs-on: ubuntu-latest
+
+#     steps:
+#       # Step 1: Checkout repo
+#       - name: Checkout repository
+#         uses: actions/checkout@v4
+
+#       # Step 2: Setup Python
+#       - name: Set up Python 3.10
+#         uses: actions/setup-python@v5
+#         with:
+#           python-version: '3.10'
+
+#       # Step 3: Install dependencies
+#       - name: Install dependencies
+#         run: |
+#           python -m pip install --upgrade pip
+#           pip install -r requirements.txt
+#           pip install dvc[all] mlflow
+
+#       # Step 4: Run preprocessing 
+#       - name: Run preprocessing
+#         run: |
+#           python src/preprocess.py
+
+#       # Step 5: Run model training
+#       - name: Run model training
+#         run: |
+#           python src/model_train.py
+
+#       # Step 6: Commit & push updated model artifacts
+#       - name: Commit trained model & metrics
+#         run: |
+#           git config --global user.name "github-actions"
+#           git config --global user.email "actions@github.com"
+#           git add -A
+#           git commit -m "Auto-update model and metrics [skip ci]" || echo "No changes to commit"
+#           git push origin main || echo "No push needed"
+
+#   deploy:
+#     runs-on: ubuntu-latest
+#     needs: mlops-pipeline
+
+#     steps:
+#       # Step 1: Checkout repo
+#       - name: Checkout repository
+#         uses: actions/checkout@v4
+
+#       # Step 2: Set up SSH key for EC2 access
+#       - name: Setup SSH Key
+#         run: |
+#           echo "${{ secrets.PRIVATE_KEY }}" > private_key.pem
+#           chmod 600 private_key.pem
+
+#       # Step 3: Deploy Docker container on EC2
+#       - name: Deploy Docker container on EC2
+#         run: |
+#           ssh -o StrictHostKeyChecking=no -i private_key.pem ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
+#             echo " Connected to EC2 instance"
+
+#             cd ${{ secrets.PROJECT_PATH }}
+
+#             echo "Pulling latest changes..."
+#             git pull origin main
+
+#             echo "Stopping old container..."
+#             docker stop renewable-energy-mlops || true
+#             docker rm renewable-energy-mlops || true
+
+#             echo "Building and running new container..."
+#             docker build -t renewable-energy-mlops .
+#             docker run -d -p 8000:8000 renewable-energy-mlops
+
+#             echo " Deployment successful!"
+#           EOF
+
+name: Renewable Energy MLOps Pipeline
 
 on:
   push:
-    branches:
-      - main
+    branches: [ main ]
   pull_request:
-    branches:
-      - main
+    branches: [ main ]
 
 jobs:
-  mlops-pipeline:
+  train:
     runs-on: ubuntu-latest
 
     steps:
-      # Step 1: Checkout repo
-      - name: Checkout repository
+      - name: Checkout code
         uses: actions/checkout@v4
 
-      # Step 2: Setup Python
-      - name: Set up Python 3.10
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.10'
+      - name: Set up Docker
+        uses: docker/setup-buildx-action@v3
 
-      # Step 3: Install dependencies
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-          pip install dvc[all] mlflow
+      - name: Build Docker image
+        run: docker build -t energy-mlops .
 
-      # Step 4: Run preprocessing 
-      - name: Run preprocessing
-        run: |
-          python src/preprocess.py
-
-      # Step 5: Run model training
-      - name: Run model training
-        run: |
-          python src/model_train.py
-
-      # Step 6: Commit & push updated model artifacts
-      - name: Commit trained model & metrics
-        run: |
-          git config --global user.name "github-actions"
-          git config --global user.email "actions@github.com"
-          git add -A
-          git commit -m "Auto-update model and metrics [skip ci]" || echo "No changes to commit"
-          git push origin main || echo "No push needed"
-
-  deploy:
-    runs-on: ubuntu-latest
-    needs: mlops-pipeline
-
-    steps:
-      # Step 1: Checkout repo
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      # Step 2: Set up SSH key for EC2 access
-      - name: Setup SSH Key
-        run: |
-          echo "${{ secrets.PRIVATE_KEY }}" > private_key.pem
-          chmod 600 private_key.pem
-
-      # Step 3: Deploy Docker container on EC2
-      - name: Deploy Docker container on EC2
-        run: |
-          ssh -o StrictHostKeyChecking=no -i private_key.pem ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
-            echo " Connected to EC2 instance"
-
-            cd ${{ secrets.PROJECT_PATH }}
-
-            echo "Pulling latest changes..."
-            git pull origin main
-
-            echo "Stopping old container..."
-            docker stop renewable-energy-mlops || true
-            docker rm renewable-energy-mlops || true
-
-            echo "Building and running new container..."
-            docker build -t renewable-energy-mlops .
-            docker run -d -p 8000:8000 renewable-energy-mlops
-
-            echo " Deployment successful!"
-          EOF
+      - name: Run training in Docker
+        run: docker run energy-mlops

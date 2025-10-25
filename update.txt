@@ -8,9 +8,9 @@ docker run --rm -p 8000:8000 -v "${PWD}/models:/app/models" energy-mlops:latest
 
 open another terminal and run :
 Invoke-RestMethod -Uri "http://localhost:8000/predict" `
->>   -Method POST `
->>   -Headers @{ "Content-Type" = "application/json" } `
->>   -Body '{ "country": "India", "year": 2025 }'
+>>     -Method POST `
+>>     -Headers @{"Content-Type"="application/json"} `
+>>     -Body '{"country":"India","year":2025}'
 
 How to get inside EC2 
  ssh -i "C:\Users\Suyash Tambe\Downloads\energy_mlops.pem" ubuntu@18.212.208.5
