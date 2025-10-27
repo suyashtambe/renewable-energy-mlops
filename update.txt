@@ -3,7 +3,7 @@ we need front end also fro this project
 
 cmd:
 1.docker-
-docker build -t energy-mlops:latest
+docker build -t energy-mlops:latest .
 docker run --rm -p 8000:8000 -v "${PWD}/models:/app/models" energy-mlops:latest
 
 open another terminal and run :

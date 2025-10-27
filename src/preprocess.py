@@ -4,36 +4,37 @@ from sklearn.model_selection import train_test_split
 import os
 
 def preprocess_data():
-    # Load raw dataset
-    df = pd.read_csv(r"C:\Users\Suyash Tambe\Desktop\renewable-energy-mlops\data\raw\global_energy_consumption.csv")
+    # Define raw data path (relative to project root)
+    raw_path = os.path.join("data", "raw", "global_energy_consumption.csv")
 
-    # Check for missing values
+    # Ensure raw dataset exists
+    if not os.path.exists(raw_path):
+        raise FileNotFoundError(f" Raw dataset not found at {raw_path}. Please ensure it exists before preprocessing.")
+
+    # Load dataset
+    df = pd.read_csv(raw_path)
+
+    # Handle missing values
     if df.isnull().sum().sum() > 0:
-        df = df.fillna(df.mean())  # simple imputation
+        df = df.fillna(df.mean(numeric_only=True))  # safer for new pandas versions
 
-    # Keep 'Country' for per-country models
-    # Target column
+    # Verify target column exists
     target = "Renewable Energy Share (%)"
     if target not in df.columns:
-        raise ValueError(f"Target column {target} not in dataset")
+        raise ValueError(f"Target column '{target}' not in dataset. Found columns: {list(df.columns)}")
 
-    # Temporal feature
+    # Create derived features
     df["Year_diff"] = df["Year"] - df["Year"].min()
+    df["Industrial_to_Household_ratio"] = df["Industrial Energy Use (%)"] / (df["Household Energy Use (%)"] + 1e-5)
 
-    # Optional: ratio features
-    df["Industrial_to_Household_ratio"] = df["Industrial Energy Use (%)"] / \
-                                          (df["Household Energy Use (%)"] + 1e-5)
-
-    # Features to drop (keep numeric + Country)
-    drop_cols = ["Year"]  # Year_diff replaces it
+    # Drop columns not needed
+    drop_cols = ["Year"]
     df_processed = df.drop(columns=drop_cols)
 
-    # Train/test split (stratify by Country if possible)
-    train_df, test_df = train_test_split(
-        df_processed, test_size=0.2, random_state=42, shuffle=True
-    )
+    # Train/test split
+    train_df, test_df = train_test_split(df_processed, test_size=0.2, random_state=42, shuffle=True)
 
-    # Create processed folder
+    # Save processed datasets
     os.makedirs("data/processed", exist_ok=True)
     train_df.to_csv("data/processed/train.csv", index=False)
     test_df.to_csv("data/processed/test.csv", index=False)

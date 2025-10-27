@@ -1,5 +1,4 @@
-# name: Renewable Energy MLOps CI/CD
-
+# name: Renewable Energy MLOps CI/CD 1 code
 # on:
 #   push:
 #     branches:
@@ -86,27 +85,100 @@
 #             echo " Deployment successful!"
 #           EOF
 
-name: Renewable Energy MLOps Pipeline
+
+# 2 code
+
+# name: Renewable Energy MLOps Pipeline
+
+# on:
+#   push:
+#     branches: [ main ]
+#   pull_request:
+#     branches: [ main ]
+
+# jobs:
+#   train:
+#     runs-on: ubuntu-latest
+
+#     steps:
+#       - name: Checkout code
+#         uses: actions/checkout@v4
+
+#       - name: Set up Docker
+#         uses: docker/setup-buildx-action@v3
+
+#       - name: Build Docker image
+#         run: docker build -t energy-mlops .
+
+#       - name: Run training in Docker
+#         run: docker run energy-mlops
+
+
+name: MLOps Pipeline
 
 on:
   push:
     branches: [ main ]
-  pull_request:
-    branches: [ main ]
 
 jobs:
-  train:
+  build-train-deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
+      - name: Checkout Repo
         uses: actions/checkout@v4
 
-      - name: Set up Docker
-        uses: docker/setup-buildx-action@v3
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.10
 
-      - name: Build Docker image
-        run: docker build -t energy-mlops .
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          pip install dvc[s3] boto3 awscli
 
-      - name: Run training in Docker
-        run: docker run energy-mlops
+      - name: Configure AWS
+        run: |
+          aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws configure set region ${{ secrets.AWS_REGION }}
+
+      - name: Pull data from DVC (S3)
+        run: dvc pull -r s3remote
+
+      - name: Run preprocessing and training
+        run: |
+          python src/preprocess.py
+          python src/train.py
+
+      - name: Push updated model to DVC (S3)
+        run: |
+          dvc add models/
+          dvc push -r s3remote
+          git add models.dvc
+          git commit -m "Updated model"
+          git push origin main || echo "No model change"
+
+      - name: Login to ECR
+        run: |
+          aws ecr get-login-password --region ${{ secrets.AWS_REGION }} \
+            | docker login --username AWS --password-stdin ${{ secrets.ECR_REPOSITORY }}
+
+      - name: Build and Push Docker Image
+        run: |
+          docker build -t energy-mlops:latest .
+          docker tag energy-mlops:latest ${{ secrets.ECR_REPOSITORY }}:latest
+          docker push ${{ secrets.ECR_REPOSITORY }}:latest
+
+      - name: Deploy on EC2
+        uses: appleboy/ssh-action@v1.1.0
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_KEY }}
+          script: |
+            docker pull ${{ secrets.ECR_REPOSITORY }}:latest
+            docker stop energy-mlops || true
+            docker rm energy-mlops || true
+            docker run -d -p 8000:8000 --name energy-mlops ${{ secrets.ECR_REPOSITORY }}:latest

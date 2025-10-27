@@ -1,6 +1,9 @@
 [core]
-    remote = localremote
+    remote = s3remote
 ['remote "myremote"']
     url = ../gdrive:1naJ01wjSwCpmdWQwBxNQtJZIfllVPRq0
 ['remote "localremote"']
     url = ../dvc-storage
+['remote "s3remote"']
+    url = s3://renewable-energy-mlops-data
+    endpointurl = https://s3.us-east-1.amazonaws.com
