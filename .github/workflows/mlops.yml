@@ -114,71 +114,53 @@
 #         run: docker run energy-mlops
 
 
-name: MLOps Pipeline
+name: Renewable Energy MLOps CI/CD Pipeline
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
 
 jobs:
-  build-train-deploy:
+  build-and-deploy:
+    name: Build and Deploy to AWS
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Repo
-        uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      # Configure AWS credentials (use GitHub secrets)
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v3
         with:
-          python-version: 3.10
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
 
-      - name: Install dependencies
+      # Login to ECR
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      # Build, tag, and push Docker image
+      - name: Build, tag, and push Docker image
         run: |
-          pip install -r requirements.txt
-          pip install dvc[s3] boto3 awscli
+          IMAGE_TAG=latest
+          ECR_REPOSITORY=010438484236.dkr.ecr.us-east-1.amazonaws.com/energy-mlops
+          docker build -t energy-mlops .
+          docker tag energy-mlops:latest $ECR_REPOSITORY:$IMAGE_TAG
+          docker push $ECR_REPOSITORY:$IMAGE_TAG
 
-      - name: Configure AWS
-        run: |
-          aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws configure set region ${{ secrets.AWS_REGION }}
-
-      - name: Pull data from DVC (S3)
-        run: dvc pull -r s3remote
-
-      - name: Run preprocessing and training
-        run: |
-          python src/preprocess.py
-          python src/train.py
-
-      - name: Push updated model to DVC (S3)
-        run: |
-          dvc add models/
-          dvc push -r s3remote
-          git add models.dvc
-          git commit -m "Updated model"
-          git push origin main || echo "No model change"
-
-      - name: Login to ECR
-        run: |
-          aws ecr get-login-password --region ${{ secrets.AWS_REGION }} \
-            | docker login --username AWS --password-stdin ${{ secrets.ECR_REPOSITORY }}
-
-      - name: Build and Push Docker Image
-        run: |
-          docker build -t energy-mlops:latest .
-          docker tag energy-mlops:latest ${{ secrets.ECR_REPOSITORY }}:latest
-          docker push ${{ secrets.ECR_REPOSITORY }}:latest
-
+      # Deploy to EC2 via SSH
       - name: Deploy on EC2
-        uses: appleboy/ssh-action@v1.1.0
+        uses: appleboy/ssh-action@v0.1.10
         with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USER }}
-          key: ${{ secrets.EC2_KEY }}
+          host: ec2-98-81-124-85.compute-1.amazonaws.com
+          username: ubuntu
+          key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            docker pull ${{ secrets.ECR_REPOSITORY }}:latest
-            docker stop energy-mlops || true
-            docker rm energy-mlops || true
-            docker run -d -p 8000:8000 --name energy-mlops ${{ secrets.ECR_REPOSITORY }}:latest
+            sudo docker pull 010438484236.dkr.ecr.us-east-1.amazonaws.com/energy-mlops:latest
+            sudo docker stop energy-mlops || true
+            sudo docker rm energy-mlops || true
+            sudo docker run -d -p 8000:8000 --name energy-mlops 010438484236.dkr.ecr.us-east-1.amazonaws.com/energy-mlops:latest
